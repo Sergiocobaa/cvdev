@@ -211,10 +211,10 @@ export default function ResultPage() {
                 Legal
               </p>
               <div className="space-y-2.5">
-                <Link href="#" className="block text-[13px] text-black/40 hover:text-black transition-colors duration-150">
+                <Link href="/privacy" className="block text-[13px] text-black/40 hover:text-black transition-colors duration-150">
                   Privacidad
                 </Link>
-                <Link href="#" className="block text-[13px] text-black/40 hover:text-black transition-colors duration-150">
+                <Link href="/terms" className="block text-[13px] text-black/40 hover:text-black transition-colors duration-150">
                   Términos
                 </Link>
               </div>

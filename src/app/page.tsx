@@ -65,13 +65,9 @@ export default function LandingPage() {
               <span className="text-[13px] text-black/30">Sin registro · Gratis</span>
             </div>
 
-            {/* Social proof */}
-            <div className="flex items-center gap-2.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#3B6D11] animate-pulse flex-shrink-0" />
-              <span className="text-[13px] text-black/35">
-                Más de 300 análisis realizados esta semana
-              </span>
-            </div>
+            <p className="text-[13px] text-black/35">
+              Análisis gratuito · Sin registro · Sin tarjeta
+            </p>
           </div>
 
           {/* Right — preview card */}
@@ -201,8 +197,8 @@ export default function LandingPage() {
                 Legal
               </p>
               <div className="space-y-2.5">
-                <FooterLink href="#" label="Privacidad" />
-                <FooterLink href="#" label="Términos" />
+                <FooterLink href="/privacy" label="Privacidad" />
+                <FooterLink href="/terms" label="Términos" />
               </div>
             </div>
           </div>

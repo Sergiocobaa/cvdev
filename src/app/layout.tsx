@@ -5,7 +5,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'CvDev — Tu primer empleo en tech',
+  title: 'cvdev — Tu primer empleo en tech',
   description:
     'Sube tu CV, pega la oferta de trabajo y recibe un análisis personalizado con IA. Diseñado para devs junior.',
 }
