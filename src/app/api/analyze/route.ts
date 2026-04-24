@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
-import { prisma } from '@/lib/prisma'
 import type { ClaudeAnalysis } from '@/types/analysis'
 
 // Import from lib directly to skip pdf-parse's test-file initialization at module load
@@ -129,24 +128,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Save to database
-    const saved = await prisma.analysis.create({
-      data: {
-        cvText,
-        jobDescription: jobDescription.trim(),
-        score: Math.max(0, Math.min(100, analysisData.score)),
-        scoreExplanation: analysisData.scoreExplanation,
-        improvements: JSON.stringify(analysisData.improvements),
-        coverLetter: analysisData.coverLetter,
-      },
-    })
-
     return NextResponse.json({
-      id: saved.id,
-      score: saved.score,
-      scoreExplanation: saved.scoreExplanation,
+      score: Math.max(0, Math.min(100, analysisData.score)),
+      scoreExplanation: analysisData.scoreExplanation,
       improvements: analysisData.improvements,
-      coverLetter: saved.coverLetter,
+      coverLetter: analysisData.coverLetter,
     })
   } catch (error) {
     console.error('[/api/analyze]', error)

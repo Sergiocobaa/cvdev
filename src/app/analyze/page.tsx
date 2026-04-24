@@ -60,7 +60,11 @@ export default function AnalyzePage() {
         throw new Error(data.error ?? 'Error al analizar el CV.')
       }
 
-      router.push(`/result?id=${data.id}`)
+      sessionStorage.setItem('cvdev_analysis', JSON.stringify({
+        ...data,
+        createdAt: new Date().toISOString(),
+      }))
+      router.push('/result')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Algo salió mal. Inténtalo de nuevo.')
       setLoading(false)

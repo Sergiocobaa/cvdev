@@ -1,27 +1,43 @@
-import { notFound } from 'next/navigation'
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { prisma } from '@/lib/prisma'
 import type { Improvement } from '@/types/analysis'
 import CopyButton from '@/components/CopyButton'
 
-interface ResultPageProps {
-  searchParams: { id?: string }
+interface AnalysisData {
+  score: number
+  scoreExplanation: string
+  improvements: Improvement[]
+  coverLetter: string
+  createdAt?: string
 }
 
-export default async function ResultPage({ searchParams }: ResultPageProps) {
-  const { id } = searchParams
+export default function ResultPage() {
+  const router = useRouter()
+  const [data, setData] = useState<AnalysisData | null>(null)
 
-  if (!id) notFound()
+  useEffect(() => {
+    const raw = sessionStorage.getItem('cvdev_analysis')
+    if (!raw) {
+      router.replace('/analyze')
+      return
+    }
+    try {
+      setData(JSON.parse(raw))
+    } catch {
+      router.replace('/analyze')
+    }
+  }, [router])
 
-  const analysis = await prisma.analysis.findUnique({ where: { id } })
-
-  if (!analysis) notFound()
-
-  const improvements: Improvement[] = JSON.parse(analysis.improvements)
+  if (!data) {
+    return <div className="min-h-screen bg-white" />
+  }
 
   const scoreLabel =
-    analysis.score >= 71 ? 'Perfil sólido'
-    : analysis.score >= 41 ? 'Buen perfil'
+    data.score >= 71 ? 'Perfil sólido'
+    : data.score >= 41 ? 'Buen perfil'
     : 'Necesita mejoras'
 
   return (
@@ -55,15 +71,17 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
             style={{ letterSpacing: '-0.03em' }}
           >
             Compatibilidad:{' '}
-            <span className="text-black/35">{analysis.score}/100</span>
+            <span className="text-black/35">{data.score}/100</span>
           </h1>
-          <p className="text-[12px] text-black/25 font-medium">
-            {new Date(analysis.createdAt).toLocaleDateString('es-ES', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })}
-          </p>
+          {data.createdAt && (
+            <p className="text-[12px] text-black/25 font-medium">
+              {new Date(data.createdAt).toLocaleDateString('es-ES', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })}
+            </p>
+          )}
         </div>
 
         {/* Separator */}
@@ -77,7 +95,7 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
                 className="text-[72px] font-medium leading-none"
                 style={{ letterSpacing: '-0.04em' }}
               >
-                {analysis.score}
+                {data.score}
               </div>
               <div className="text-[11px] text-black/30 mt-2 font-medium">/100</div>
             </div>
@@ -86,7 +104,7 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
 
             <div className="flex-1 pt-3 min-w-0">
               <p className="text-[15px] text-black/55 leading-relaxed max-w-xl">
-                {analysis.scoreExplanation}
+                {data.scoreExplanation}
               </p>
             </div>
           </div>
@@ -95,7 +113,7 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
           <div className="h-0.5 bg-black/8 w-full">
             <div
               className="h-full bg-black"
-              style={{ width: `${analysis.score}%` }}
+              style={{ width: `${data.score}%` }}
             />
           </div>
 
@@ -113,9 +131,8 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
           <p className="text-[11px] uppercase tracking-[0.18em] text-black/35 font-medium mb-8">
             Mejoras para tu CV
           </p>
-
           <div>
-            {improvements.map((item, i) => (
+            {data.improvements.map((item, i) => (
               <ImprovementRow key={i} improvement={item} />
             ))}
           </div>
@@ -130,15 +147,14 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
             <p className="text-[11px] uppercase tracking-[0.18em] text-black/35 font-medium">
               Carta de presentación
             </p>
-            <CopyButton text={analysis.coverLetter} />
+            <CopyButton text={data.coverLetter} />
           </div>
-
           <div
             className="border px-8 py-8"
             style={{ background: '#F5F5F5', borderColor: 'rgba(0,0,0,0.08)', borderWidth: '0.5px' }}
           >
             <p className="text-[14px] text-black/65 leading-[1.8] whitespace-pre-wrap">
-              {analysis.coverLetter}
+              {data.coverLetter}
             </p>
           </div>
         </div>
@@ -163,7 +179,6 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
       {/* Footer */}
       <div className="border-t border-black/8">
         <div className="max-w-5xl mx-auto px-8 pt-12 pb-6">
-
           <div className="grid md:grid-cols-3 gap-10 mb-10">
             <div>
               <Link href="/" className="tracking-tight select-none text-[15px] mb-4 block">
@@ -175,7 +190,6 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
                 devs que buscan su primer empleo.
               </p>
             </div>
-
             <div>
               <p className="text-[11px] uppercase tracking-[0.15em] text-black/30 font-medium mb-4">
                 Producto
@@ -192,7 +206,6 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
                 </Link>
               </div>
             </div>
-
             <div>
               <p className="text-[11px] uppercase tracking-[0.15em] text-black/30 font-medium mb-4">
                 Legal
@@ -207,7 +220,6 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
               </div>
             </div>
           </div>
-
           <div className="border-t border-black/8 pt-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
             <span className="text-[12px] text-black/25">
               © 2025 cvdev. Todos los derechos reservados.
@@ -216,7 +228,6 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
               Hecho con Next.js y OpenAI
             </span>
           </div>
-
         </div>
       </div>
 

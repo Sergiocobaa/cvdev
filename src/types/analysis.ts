@@ -5,11 +5,11 @@ export interface Improvement {
 }
 
 export interface AnalysisResult {
-  id: string
   score: number
   scoreExplanation: string
   improvements: Improvement[]
   coverLetter: string
+  createdAt?: string
 }
 
 export interface ClaudeAnalysis {
