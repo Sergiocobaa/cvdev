@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import ThemeToggle from '@/components/ThemeToggle'
 
 export const metadata: Metadata = {
   title: 'Privacidad — cvdev',
@@ -7,21 +8,24 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-white text-black font-sans">
+    <div className="min-h-screen bg-white dark:bg-zinc-950 text-black dark:text-zinc-100 font-sans">
 
       {/* Nav */}
-      <nav className="border-b border-black/8 px-8 py-5">
+      <nav className="border-b border-black/8 dark:border-zinc-800 px-8 py-5">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <Link href="/" className="tracking-tight select-none text-[15px]">
-            <span className="font-semibold text-black">cv</span>
-            <span className="font-normal font-mono text-[#888]">dev</span>
+            <span className="font-semibold text-black dark:text-zinc-100">cv</span>
+            <span className="font-normal font-mono text-[#888] dark:text-zinc-500">dev</span>
           </Link>
-          <Link
-            href="/analyze"
-            className="text-[12px] text-black/35 hover:text-black transition-colors duration-150"
-          >
-            Analizar CV →
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/analyze"
+              className="text-[12px] text-black/35 dark:text-zinc-500 hover:text-black dark:hover:text-zinc-100 transition-colors duration-150"
+            >
+              Analizar CV →
+            </Link>
+            <ThemeToggle />
+          </div>
         </div>
       </nav>
 
@@ -29,7 +33,7 @@ export default function PrivacyPage() {
 
         {/* Page header */}
         <div className="pb-12">
-          <p className="text-[11px] uppercase tracking-[0.18em] text-black/35 mb-5 font-medium">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-black/35 dark:text-zinc-500 mb-5 font-medium">
             Legal
           </p>
           <h1
@@ -38,14 +42,13 @@ export default function PrivacyPage() {
           >
             Privacidad
           </h1>
-          <p className="text-[12px] text-black/25 font-medium">
+          <p className="text-[12px] text-black/25 dark:text-zinc-600 font-medium">
             Actualizado: abril 2025
           </p>
         </div>
 
-        <div className="border-t border-black/8" />
+        <div className="border-t border-black/8 dark:border-zinc-800" />
 
-        {/* Sections */}
         <div>
           <PolicySection title="Qué datos procesamos">
             Tu CV en PDF y el texto de la oferta de trabajo que introduces. Estos datos se envían
@@ -66,7 +69,7 @@ export default function PrivacyPage() {
                 href="https://openai.com/privacy"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline underline-offset-2 decoration-black/25 hover:decoration-black transition-colors"
+                className="underline underline-offset-2 decoration-black/25 dark:decoration-zinc-600 hover:decoration-black dark:hover:decoration-zinc-300 transition-colors"
               >
                 openai.com/privacy
               </a>
@@ -84,7 +87,7 @@ export default function PrivacyPage() {
               Para cualquier duda sobre privacidad puedes escribirnos a{' '}
               <a
                 href="mailto:hola@cvdev.app"
-                className="underline underline-offset-2 decoration-black/25 hover:decoration-black transition-colors"
+                className="underline underline-offset-2 decoration-black/25 dark:decoration-zinc-600 hover:decoration-black dark:hover:decoration-zinc-300 transition-colors"
               >
                 hola@cvdev.app
               </a>
@@ -96,54 +99,54 @@ export default function PrivacyPage() {
       </div>
 
       {/* Footer */}
-      <div className="border-t border-black/8 mt-12">
+      <div className="border-t border-black/8 dark:border-zinc-800 mt-12">
         <div className="max-w-5xl mx-auto px-8 pt-12 pb-6">
           <div className="grid md:grid-cols-3 gap-10 mb-10">
             <div>
               <Link href="/" className="tracking-tight select-none text-[15px] mb-4 block">
-                <span className="font-semibold text-black">cv</span>
-                <span className="font-normal font-mono text-[#888]">dev</span>
+                <span className="font-semibold text-black dark:text-zinc-100">cv</span>
+                <span className="font-normal font-mono text-[#888] dark:text-zinc-500">dev</span>
               </Link>
-              <p className="text-[13px] text-black/40 leading-relaxed">
+              <p className="text-[13px] text-black/40 dark:text-zinc-400 leading-relaxed">
                 Análisis de CV con IA para<br />
                 devs que buscan su primer empleo.
               </p>
             </div>
             <div>
-              <p className="text-[11px] uppercase tracking-[0.15em] text-black/30 font-medium mb-4">
+              <p className="text-[11px] uppercase tracking-[0.15em] text-black/30 dark:text-zinc-600 font-medium mb-4">
                 Producto
               </p>
               <div className="space-y-2.5">
-                <Link href="/analyze" className="block text-[13px] text-black/40 hover:text-black transition-colors duration-150">
+                <Link href="/analyze" className="block text-[13px] text-black/40 dark:text-zinc-400 hover:text-black dark:hover:text-zinc-100 transition-colors duration-150">
                   Analizar CV
                 </Link>
-                <Link href="/#features" className="block text-[13px] text-black/40 hover:text-black transition-colors duration-150">
+                <Link href="/#features" className="block text-[13px] text-black/40 dark:text-zinc-400 hover:text-black dark:hover:text-zinc-100 transition-colors duration-150">
                   Cómo funciona
                 </Link>
-                <Link href="/#ejemplo" className="block text-[13px] text-black/40 hover:text-black transition-colors duration-150">
+                <Link href="/#ejemplo" className="block text-[13px] text-black/40 dark:text-zinc-400 hover:text-black dark:hover:text-zinc-100 transition-colors duration-150">
                   Ejemplos
                 </Link>
               </div>
             </div>
             <div>
-              <p className="text-[11px] uppercase tracking-[0.15em] text-black/30 font-medium mb-4">
+              <p className="text-[11px] uppercase tracking-[0.15em] text-black/30 dark:text-zinc-600 font-medium mb-4">
                 Legal
               </p>
               <div className="space-y-2.5">
-                <Link href="/privacy" className="block text-[13px] text-black/40 hover:text-black transition-colors duration-150">
+                <Link href="/privacy" className="block text-[13px] text-black/40 dark:text-zinc-400 hover:text-black dark:hover:text-zinc-100 transition-colors duration-150">
                   Privacidad
                 </Link>
-                <Link href="/terms" className="block text-[13px] text-black/40 hover:text-black transition-colors duration-150">
+                <Link href="/terms" className="block text-[13px] text-black/40 dark:text-zinc-400 hover:text-black dark:hover:text-zinc-100 transition-colors duration-150">
                   Términos
                 </Link>
               </div>
             </div>
           </div>
-          <div className="border-t border-black/8 pt-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
-            <span className="text-[12px] text-black/25">
+          <div className="border-t border-black/8 dark:border-zinc-800 pt-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
+            <span className="text-[12px] text-black/25 dark:text-zinc-600">
               © 2025 cvdev. Todos los derechos reservados.
             </span>
-            <span className="text-[12px] text-black/25">
+            <span className="text-[12px] text-black/25 dark:text-zinc-600">
               Hecho con Next.js y OpenAI
             </span>
           </div>
@@ -156,12 +159,12 @@ export default function PrivacyPage() {
 
 function PolicySection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="border-t border-black/8 py-10">
+    <div className="border-t border-black/8 dark:border-zinc-800 py-10">
       <div className="md:grid md:grid-cols-[220px_1fr] md:gap-x-12">
-        <h2 className="text-[13px] font-medium text-black mb-3 md:mb-0 md:pt-0.5 leading-snug">
+        <h2 className="text-[13px] font-medium text-black dark:text-zinc-100 mb-3 md:mb-0 md:pt-0.5 leading-snug">
           {title}
         </h2>
-        <p className="text-[15px] text-black/55 leading-relaxed">
+        <p className="text-[15px] text-black/55 dark:text-zinc-400 leading-relaxed">
           {children}
         </p>
       </div>
