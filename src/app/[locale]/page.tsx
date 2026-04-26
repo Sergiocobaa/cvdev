@@ -1,5 +1,7 @@
 import Link from 'next/link'
+import { useTranslations, useLocale } from 'next-intl'
 import ThemeToggle from '@/components/ThemeToggle'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 function Logo({ className = '' }: { className?: string }) {
   return (
@@ -11,66 +13,72 @@ function Logo({ className = '' }: { className?: string }) {
 }
 
 export default function LandingPage() {
+  const t = useTranslations('landing')
+  const tn = useTranslations('nav')
+  const locale = useLocale()
+  const p = (path: string) => (locale === 'es' ? `/es${path}` : path)
+  const home = locale === 'es' ? '/es' : '/'
+
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-950 text-black dark:text-zinc-100 font-sans">
 
       {/* Nav */}
       <nav className="border-b border-black/8 dark:border-zinc-800 px-8 py-5">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Logo className="text-[15px]" />
-          <div className="flex items-center gap-2">
+          <Link href={home}>
+            <Logo className="text-[15px]" />
+          </Link>
+          <div className="flex items-center gap-3">
             <Link
-              href="/analyze"
+              href={p('/analyze')}
               className="text-sm text-black/40 dark:text-zinc-500 hover:text-black dark:hover:text-zinc-100 transition-colors duration-150"
             >
-              Analizar CV
+              {tn('analyze')}
             </Link>
+            <LanguageSwitcher />
             <ThemeToggle />
           </div>
         </div>
       </nav>
 
-      {/* ── Hero ──────────────────────────────────────────────────────────── */}
+      {/* ── Hero ─────────────────────────────────────────────── */}
       <section className="max-w-5xl mx-auto px-8 pt-24 pb-16">
         <div className="grid md:grid-cols-2 gap-16 items-center">
 
-          {/* Left */}
           <div>
             <p className="text-[11px] uppercase tracking-[0.18em] text-black/35 dark:text-zinc-500 mb-7 font-medium">
-              Para devs junior
+              {t('eyebrow')}
             </p>
 
             <h1
               className="text-[clamp(36px,5vw,52px)] font-medium leading-[1.08] mb-7"
               style={{ letterSpacing: '-0.03em' }}
             >
-              Tu CV,{' '}
-              <span className="text-black/35 dark:text-zinc-500 italic">analizado</span>
+              {t('headline_1')}{' '}
+              <span className="text-black/35 dark:text-zinc-500 italic">{t('headline_italic')}</span>
               <br />
-              con criterio real.
+              {t('headline_2')}
             </h1>
 
             <p className="text-[15px] text-black/45 dark:text-zinc-400 leading-relaxed max-w-sm mb-10">
-              Compatibilidad con la oferta, mejoras accionables y carta
-              de presentación. En menos de un minuto.
+              {t('subheadline')}
             </p>
 
             <div className="flex items-center gap-6 mb-7">
               <Link
-                href="/analyze"
+                href={p('/analyze')}
                 className="inline-block px-6 py-3 bg-black dark:bg-zinc-100 text-white dark:text-zinc-950 text-sm font-medium hover:bg-black/85 dark:hover:bg-zinc-200 transition-colors duration-150"
               >
-                Analizar mi CV →
+                {t('cta')}
               </Link>
-              <span className="text-[13px] text-black/30 dark:text-zinc-600">Sin registro · Gratis</span>
+              <span className="text-[13px] text-black/30 dark:text-zinc-600">{t('cta_sub')}</span>
             </div>
 
             <p className="text-[13px] text-black/35 dark:text-zinc-500">
-              Análisis gratuito · Sin registro · Sin tarjeta
+              {t('social_proof')}
             </p>
           </div>
 
-          {/* Right — preview card */}
           <div className="flex items-center justify-center md:justify-end mt-10 md:mt-0">
             <div style={{ transform: 'rotate(1.5deg)', width: '100%', maxWidth: '340px' }}>
               <PreviewCard />
@@ -80,63 +88,63 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Trust strip ───────────────────────────────────────────────────── */}
+      {/* ── Trust strip ───────────────────────────────────────── */}
       <div className="border-y border-black/8 dark:border-zinc-800 py-4">
         <p className="text-center text-[11px] uppercase tracking-[0.2em] text-black/30 dark:text-zinc-600 font-medium">
-          Sin registro&nbsp;&nbsp;·&nbsp;&nbsp;Sin tarjeta&nbsp;&nbsp;·&nbsp;&nbsp;Resultados en 30 segundos
+          {t('trust_strip')}
         </p>
       </div>
 
-      {/* ── Features ──────────────────────────────────────────────────────── */}
+      {/* ── Features ──────────────────────────────────────────── */}
       <section className="max-w-5xl mx-auto px-8 py-16">
         <div className="grid md:grid-cols-3 md:divide-x md:divide-y-0 divide-y divide-black/8 dark:divide-zinc-800">
           <FeatureCol
-            num="01"
-            title="Puntuación de compatibilidad"
-            description="Qué tan bien encaja tu perfil con la oferta. Explicación de puntos fuertes y lo que falta."
-            example='score: 74/100 — "Perfil con potencial técnico."'
+            num={t('feature_1_num')}
+            title={t('feature_1_title')}
+            description={t('feature_1_desc')}
+            example={t('feature_1_example')}
           />
           <FeatureCol
-            num="02"
-            title="Mejoras concretas"
-            description="Sugerencias sobre proyectos, GitHub, keywords técnicas y formato. Ordenadas por impacto."
-            example='"Añade testing unitario al repo principal."'
+            num={t('feature_2_num')}
+            title={t('feature_2_title')}
+            description={t('feature_2_desc')}
+            example={t('feature_2_example')}
           />
           <FeatureCol
-            num="03"
-            title="Carta de presentación"
-            description="Lista para copiar y enviar. Adaptada a tu perfil y a la oferta específica."
-            example='"Estimados reclutadores de Acme Corp..."'
+            num={t('feature_3_num')}
+            title={t('feature_3_title')}
+            description={t('feature_3_desc')}
+            example={t('feature_3_example')}
           />
         </div>
       </section>
 
-      {/* ── Por qué funciona ──────────────────────────────────────────────── */}
+      {/* ── Por qué funciona ──────────────────────────────────── */}
       <div className="border-t border-black/8 dark:border-zinc-800">
         <section className="max-w-5xl mx-auto px-8 py-16">
           <p className="text-[11px] uppercase tracking-[0.18em] text-black/35 dark:text-zinc-500 mb-6 font-medium">
-            Por qué funciona
+            {t('why_eyebrow')}
           </p>
           <h2
             className="text-[clamp(24px,3.5vw,38px)] font-medium leading-[1.15] mb-10"
             style={{ letterSpacing: '-0.025em' }}
           >
-            Análisis diseñado para<br />
-            lo que miran los recruiters.
+            {t('why_title_1')}<br />
+            {t('why_title_2')}
           </h2>
           <div className="space-y-5 max-w-lg">
-            <WhyPoint text="Detecta keywords que los ATS filtran automáticamente" />
-            <WhyPoint text="Evalúa si tus proyectos de GitHub son relevantes para la oferta" />
-            <WhyPoint text="Genera cartas que suenan humanas, no a plantilla" />
+            <WhyPoint text={t('why_1')} />
+            <WhyPoint text={t('why_2')} />
+            <WhyPoint text={t('why_3')} />
           </div>
         </section>
       </div>
 
-      {/* ── Preview strip ─────────────────────────────────────────────────── */}
+      {/* ── Preview strip ─────────────────────────────────────── */}
       <div className="border-t border-black/8 dark:border-zinc-800">
         <section className="max-w-5xl mx-auto px-8 py-16">
           <p className="text-[11px] uppercase tracking-[0.18em] text-black/35 dark:text-zinc-500 mb-6 font-medium">
-            Ejemplo de análisis
+            {t('example_eyebrow')}
           </p>
           <div className="bg-[#f7f7f5] dark:bg-zinc-900 border border-black/8 dark:border-zinc-800 p-8 flex flex-col md:flex-row items-start gap-10">
             <div className="flex-shrink-0 w-28">
@@ -151,61 +159,62 @@ export default function LandingPage() {
             <div className="w-px bg-black/8 dark:bg-zinc-700 self-stretch flex-shrink-0 hidden md:block" />
             <div className="flex-1 min-w-0 space-y-5">
               <div className="flex flex-wrap gap-2">
-                <ImpactBadge label="Proyectos" level="high" />
-                <ImpactBadge label="GitHub" level="medium" />
-                <ImpactBadge label="Keywords" level="high" />
-                <ImpactBadge label="Formato" level="low" />
+                <ImpactBadge label={t('preview_projects')} level="high" badgeHigh={t('badge_high')} badgeMid={t('badge_mid')} badgeLow={t('badge_low')} />
+                <ImpactBadge label={t('preview_github')} level="medium" badgeHigh={t('badge_high')} badgeMid={t('badge_mid')} badgeLow={t('badge_low')} />
+                <ImpactBadge label={t('preview_keywords')} level="high" badgeHigh={t('badge_high')} badgeMid={t('badge_mid')} badgeLow={t('badge_low')} />
+                <ImpactBadge label={t('preview_experience')} level="low" badgeHigh={t('badge_high')} badgeMid={t('badge_mid')} badgeLow={t('badge_low')} />
               </div>
               <p className="text-[13px] text-black/45 dark:text-zinc-400 italic leading-relaxed max-w-lg">
-                "Tu stack técnico cubre el 60% de los requisitos. Añadir 2-3 proyectos con
-                React y TypeScript en GitHub elevaría tu compatibilidad a 85+."
+                {t('example_quote')}
               </p>
             </div>
           </div>
         </section>
       </div>
 
-      {/* ── Footer ────────────────────────────────────────────────────────── */}
+      {/* ── Footer ────────────────────────────────────────────── */}
       <div className="border-t border-black/8 dark:border-zinc-800">
         <div className="max-w-5xl mx-auto px-8 pt-12 pb-6">
 
           <div className="grid md:grid-cols-3 gap-10 mb-10">
             <div>
-              <Logo className="text-[15px] mb-4 block" />
+              <Link href={home}>
+                <Logo className="text-[15px] mb-4 block" />
+              </Link>
               <p className="text-[13px] text-black/40 dark:text-zinc-400 leading-relaxed">
-                Análisis de CV con IA para<br />
-                devs que buscan su primer empleo.
+                {t('footer_tagline_1')}<br />
+                {t('footer_tagline_2')}
               </p>
             </div>
 
             <div>
               <p className="text-[11px] uppercase tracking-[0.15em] text-black/30 dark:text-zinc-600 font-medium mb-4">
-                Producto
+                {t('footer_product')}
               </p>
               <div className="space-y-2.5">
-                <FooterLink href="/analyze" label="Analizar CV" />
-                <FooterLink href="/#features" label="Cómo funciona" />
-                <FooterLink href="/#ejemplo" label="Ejemplos" />
+                <FooterLink href={p('/analyze')} label={tn('analyze')} />
+                <FooterLink href={`${home}#features`} label={t('footer_how')} />
+                <FooterLink href={`${home}#ejemplo`} label={t('footer_examples')} />
               </div>
             </div>
 
             <div>
               <p className="text-[11px] uppercase tracking-[0.15em] text-black/30 dark:text-zinc-600 font-medium mb-4">
-                Legal
+                {t('footer_legal')}
               </p>
               <div className="space-y-2.5">
-                <FooterLink href="/privacy" label="Privacidad" />
-                <FooterLink href="/terms" label="Términos" />
+                <FooterLink href={p('/privacy')} label={t('footer_privacy')} />
+                <FooterLink href={p('/terms')} label={t('footer_terms')} />
               </div>
             </div>
           </div>
 
           <div className="border-t border-black/8 dark:border-zinc-800 pt-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
             <span className="text-[12px] text-black/25 dark:text-zinc-600">
-              © 2025 cvdev. Todos los derechos reservados.
+              {t('footer_copyright')}
             </span>
             <span className="text-[12px] text-black/25 dark:text-zinc-600">
-              Hecho con Next.js y OpenAI
+              {t('footer_built')}
             </span>
           </div>
 
@@ -216,14 +225,15 @@ export default function LandingPage() {
   )
 }
 
-/* ─── Components ─────────────────────────────────────────────────────────── */
+/* ─── Components ────────────────────────────────────────────── */
 
 function PreviewCard() {
+  const t = useTranslations('landing')
   return (
     <div className="bg-[#F5F5F5] dark:bg-zinc-900 border border-black/10 dark:border-zinc-700 p-5">
       <div className="flex items-baseline justify-between mb-4">
         <span className="font-mono text-[11px] text-black/40 dark:text-zinc-500 uppercase tracking-wider">
-          Compatibilidad
+          {t('preview_compatibility')}
         </span>
         <div className="font-mono text-right">
           <span className="text-[22px] font-semibold text-black dark:text-zinc-100" style={{ letterSpacing: '-0.03em' }}>
@@ -236,16 +246,16 @@ function PreviewCard() {
       <div className="border-t border-black/10 dark:border-zinc-700 mb-4" />
 
       <div className="space-y-2.5 mb-4">
-        <PreviewRow symbol="✓" label="Proyectos" level="alto" impact="high" />
-        <PreviewRow symbol="✓" label="Keywords" level="alto" impact="high" />
-        <PreviewRow symbol="~" label="GitHub" level="medio" impact="medium" />
-        <PreviewRow symbol="✗" label="Experiencia" level="bajo" impact="low" />
+        <PreviewRow symbol="✓" label={t('preview_projects')} level={t('preview_high')} impact="high" />
+        <PreviewRow symbol="✓" label={t('preview_keywords')} level={t('preview_high')} impact="high" />
+        <PreviewRow symbol="~" label={t('preview_github')} level={t('preview_mid')} impact="medium" />
+        <PreviewRow symbol="✗" label={t('preview_experience')} level={t('preview_low')} impact="low" />
       </div>
 
       <div className="border-t border-black/10 dark:border-zinc-700 mb-4" />
 
       <p className="text-[12px] text-black/45 dark:text-zinc-400 italic leading-relaxed">
-        "Añade un proyecto REST con Node.js para compensar la falta de experiencia laboral."
+        {t('preview_tip')}
       </p>
     </div>
   )
@@ -308,16 +318,24 @@ function WhyPoint({ text }: { text: string }) {
 
 type ImpactLevel = 'high' | 'medium' | 'low'
 
-function ImpactBadge({ label, level }: { label: string; level: ImpactLevel }) {
+function ImpactBadge({
+  label, level, badgeHigh, badgeMid, badgeLow,
+}: {
+  label: string
+  level: ImpactLevel
+  badgeHigh: string
+  badgeMid: string
+  badgeLow: string
+}) {
   const styles: Record<ImpactLevel, string> = {
     high: 'bg-[#EAF3DE] text-[#3B6D11] border-[#3B6D11]/15 dark:bg-green-950 dark:text-green-400 dark:border-green-900',
     medium: 'bg-white dark:bg-zinc-800 text-black/50 dark:text-zinc-400 border-black/12 dark:border-zinc-700',
     low: 'bg-white dark:bg-zinc-800 text-black/30 dark:text-zinc-500 border-black/8 dark:border-zinc-700',
   }
   const levelLabel: Record<ImpactLevel, string> = {
-    high: 'alto impacto',
-    medium: 'medio',
-    low: 'bajo',
+    high: badgeHigh,
+    medium: badgeMid,
+    low: badgeLow,
   }
 
   return (

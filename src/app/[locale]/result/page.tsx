@@ -3,9 +3,11 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useTranslations, useLocale } from 'next-intl'
 import type { Improvement } from '@/types/analysis'
 import CopyButton from '@/components/CopyButton'
 import ThemeToggle from '@/components/ThemeToggle'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 interface AnalysisData {
   score: number
@@ -17,29 +19,40 @@ interface AnalysisData {
 
 export default function ResultPage() {
   const router = useRouter()
+  const t = useTranslations('result')
+  const locale = useLocale()
   const [data, setData] = useState<AnalysisData | null>(null)
+
+  const home = locale === 'es' ? '/es' : '/'
+  const analyzePath = locale === 'es' ? '/es/analyze' : '/analyze'
 
   useEffect(() => {
     const raw = sessionStorage.getItem('cvdev_analysis')
     if (!raw) {
-      router.replace('/analyze')
+      router.replace(analyzePath)
       return
     }
     try {
       setData(JSON.parse(raw))
     } catch {
-      router.replace('/analyze')
+      router.replace(analyzePath)
     }
-  }, [router])
+  }, [router, analyzePath])
 
   if (!data) {
     return <div className="min-h-screen bg-white dark:bg-zinc-950" />
   }
 
   const scoreLabel =
-    data.score >= 71 ? 'Perfil sólido'
-    : data.score >= 41 ? 'Buen perfil'
-    : 'Necesita mejoras'
+    data.score >= 71 ? t('score_high')
+    : data.score >= 41 ? t('score_mid')
+    : t('score_low')
+
+  const impactBadge: Record<'high' | 'medium' | 'low', { label: string; classes: string }> = {
+    high:   { label: t('badge_high'), classes: 'bg-[#EAF3DE] text-[#3B6D11] border-[#3B6D11]/15 dark:bg-green-950 dark:text-green-400 dark:border-green-900' },
+    medium: { label: t('badge_mid'),  classes: 'bg-white dark:bg-zinc-800 text-black/45 dark:text-zinc-400 border-black/12 dark:border-zinc-700' },
+    low:    { label: t('badge_low'),  classes: 'bg-white dark:bg-zinc-800 text-black/25 dark:text-zinc-500 border-black/8 dark:border-zinc-700' },
+  }
 
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-950 text-black dark:text-zinc-100 font-sans">
@@ -47,17 +60,18 @@ export default function ResultPage() {
       {/* Nav */}
       <nav className="border-b border-black/8 dark:border-zinc-800 px-8 py-5">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link href="/" className="tracking-tight select-none text-[15px]">
+          <Link href={home} className="tracking-tight select-none text-[15px]">
             <span className="font-semibold text-black dark:text-zinc-100">cv</span>
             <span className="font-normal font-mono text-[#888] dark:text-zinc-500">dev</span>
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Link
-              href="/analyze"
+              href={analyzePath}
               className="text-[12px] text-black/35 dark:text-zinc-500 hover:text-black dark:hover:text-zinc-100 transition-colors duration-150"
             >
-              Nuevo análisis →
+              {t('cta_button')}
             </Link>
+            <LanguageSwitcher />
             <ThemeToggle />
           </div>
         </div>
@@ -68,18 +82,18 @@ export default function ResultPage() {
         {/* Page header */}
         <div className="pb-12">
           <p className="text-[11px] uppercase tracking-[0.18em] text-black/35 dark:text-zinc-500 mb-5 font-medium">
-            Resultado del análisis
+            {t('eyebrow')}
           </p>
           <h1
             className="text-[clamp(28px,4vw,44px)] font-medium leading-[1.1] mb-3"
             style={{ letterSpacing: '-0.03em' }}
           >
-            Compatibilidad:{' '}
+            {t('compatibility')}{' '}
             <span className="text-black/35 dark:text-zinc-500">{data.score}/100</span>
           </h1>
           {data.createdAt && (
             <p className="text-[12px] text-black/25 dark:text-zinc-600 font-medium">
-              {new Date(data.createdAt).toLocaleDateString('es-ES', {
+              {new Date(data.createdAt).toLocaleDateString(locale === 'es' ? 'es-ES' : 'en-US', {
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric',
@@ -120,7 +134,6 @@ export default function ResultPage() {
             />
           </div>
 
-          {/* Status label */}
           <p className="text-[11px] uppercase tracking-[0.15em] text-black/35 dark:text-zinc-500 font-medium mt-3">
             {scoreLabel}
           </p>
@@ -131,11 +144,11 @@ export default function ResultPage() {
         {/* Improvements */}
         <div className="py-12">
           <p className="text-[11px] uppercase tracking-[0.18em] text-black/35 dark:text-zinc-500 font-medium mb-8">
-            Mejoras para tu CV
+            {t('improvements_eyebrow')}
           </p>
           <div>
             {data.improvements.map((item, i) => (
-              <ImprovementRow key={i} improvement={item} />
+              <ImprovementRow key={i} improvement={item} impactBadge={impactBadge} />
             ))}
           </div>
         </div>
@@ -146,9 +159,13 @@ export default function ResultPage() {
         <div className="py-12">
           <div className="flex items-center justify-between mb-6">
             <p className="text-[11px] uppercase tracking-[0.18em] text-black/35 dark:text-zinc-500 font-medium">
-              Carta de presentación
+              {t('cover_eyebrow')}
             </p>
-            <CopyButton text={data.coverLetter} />
+            <CopyButton
+              text={data.coverLetter}
+              copyLabel={t('copy')}
+              copiedLabel={t('copied')}
+            />
           </div>
           <div className="bg-[#F5F5F5] dark:bg-zinc-900 border border-black/8 dark:border-zinc-800 px-8 py-8">
             <p className="text-[14px] text-black/65 dark:text-zinc-300 leading-[1.8] whitespace-pre-wrap">
@@ -163,85 +180,92 @@ export default function ResultPage() {
       <div className="border-t border-black/8 dark:border-zinc-800">
         <div className="max-w-5xl mx-auto px-8 py-16 text-center">
           <p className="text-[14px] text-black/40 dark:text-zinc-500 mb-6">
-            ¿Quieres analizar otra oferta?
+            {t('cta_question')}
           </p>
           <Link
-            href="/analyze"
+            href={analyzePath}
             className="inline-block px-6 py-3 bg-black dark:bg-zinc-100 text-white dark:text-zinc-950 text-sm font-medium hover:bg-black/85 dark:hover:bg-zinc-200 transition-colors duration-150"
           >
-            Nuevo análisis →
+            {t('cta_button')}
           </Link>
         </div>
       </div>
 
       {/* Footer */}
       <div className="border-t border-black/8 dark:border-zinc-800">
-        <div className="max-w-5xl mx-auto px-8 pt-12 pb-6">
-          <div className="grid md:grid-cols-3 gap-10 mb-10">
-            <div>
-              <Link href="/" className="tracking-tight select-none text-[15px] mb-4 block">
-                <span className="font-semibold text-black dark:text-zinc-100">cv</span>
-                <span className="font-normal font-mono text-[#888] dark:text-zinc-500">dev</span>
-              </Link>
-              <p className="text-[13px] text-black/40 dark:text-zinc-400 leading-relaxed">
-                Análisis de CV con IA para<br />
-                devs que buscan su primer empleo.
-              </p>
-            </div>
-            <div>
-              <p className="text-[11px] uppercase tracking-[0.15em] text-black/30 dark:text-zinc-600 font-medium mb-4">
-                Producto
-              </p>
-              <div className="space-y-2.5">
-                <Link href="/analyze" className="block text-[13px] text-black/40 dark:text-zinc-400 hover:text-black dark:hover:text-zinc-100 transition-colors duration-150">
-                  Analizar CV
-                </Link>
-                <Link href="/#features" className="block text-[13px] text-black/40 dark:text-zinc-400 hover:text-black dark:hover:text-zinc-100 transition-colors duration-150">
-                  Cómo funciona
-                </Link>
-                <Link href="/#ejemplo" className="block text-[13px] text-black/40 dark:text-zinc-400 hover:text-black dark:hover:text-zinc-100 transition-colors duration-150">
-                  Ejemplos
-                </Link>
-              </div>
-            </div>
-            <div>
-              <p className="text-[11px] uppercase tracking-[0.15em] text-black/30 dark:text-zinc-600 font-medium mb-4">
-                Legal
-              </p>
-              <div className="space-y-2.5">
-                <Link href="/privacy" className="block text-[13px] text-black/40 dark:text-zinc-400 hover:text-black dark:hover:text-zinc-100 transition-colors duration-150">
-                  Privacidad
-                </Link>
-                <Link href="/terms" className="block text-[13px] text-black/40 dark:text-zinc-400 hover:text-black dark:hover:text-zinc-100 transition-colors duration-150">
-                  Términos
-                </Link>
-              </div>
-            </div>
-          </div>
-          <div className="border-t border-black/8 dark:border-zinc-800 pt-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
-            <span className="text-[12px] text-black/25 dark:text-zinc-600">
-              © 2025 cvdev. Todos los derechos reservados.
-            </span>
-            <span className="text-[12px] text-black/25 dark:text-zinc-600">
-              Hecho con Next.js y OpenAI
-            </span>
-          </div>
-        </div>
+        <ResultFooter locale={locale} />
       </div>
 
     </div>
   )
 }
 
-type ImpactLevel = 'high' | 'medium' | 'low'
+function ResultFooter({ locale }: { locale: string }) {
+  const t = useTranslations('landing')
+  const tn = useTranslations('nav')
+  const home = locale === 'es' ? '/es' : '/'
+  const p = (path: string) => (locale === 'es' ? `/es${path}` : path)
 
-const impactBadge: Record<ImpactLevel, { label: string; classes: string }> = {
-  high:   { label: 'Alto impacto', classes: 'bg-[#EAF3DE] text-[#3B6D11] border-[#3B6D11]/15 dark:bg-green-950 dark:text-green-400 dark:border-green-900' },
-  medium: { label: 'Medio',        classes: 'bg-white dark:bg-zinc-800 text-black/45 dark:text-zinc-400 border-black/12 dark:border-zinc-700' },
-  low:    { label: 'Bajo',         classes: 'bg-white dark:bg-zinc-800 text-black/25 dark:text-zinc-500 border-black/8 dark:border-zinc-700' },
+  return (
+    <div className="max-w-5xl mx-auto px-8 pt-12 pb-6">
+      <div className="grid md:grid-cols-3 gap-10 mb-10">
+        <div>
+          <Link href={home} className="tracking-tight select-none text-[15px] mb-4 block">
+            <span className="font-semibold text-black dark:text-zinc-100">cv</span>
+            <span className="font-normal font-mono text-[#888] dark:text-zinc-500">dev</span>
+          </Link>
+          <p className="text-[13px] text-black/40 dark:text-zinc-400 leading-relaxed">
+            {t('footer_tagline_1')}<br />
+            {t('footer_tagline_2')}
+          </p>
+        </div>
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.15em] text-black/30 dark:text-zinc-600 font-medium mb-4">
+            {t('footer_product')}
+          </p>
+          <div className="space-y-2.5">
+            <Link href={p('/analyze')} className="block text-[13px] text-black/40 dark:text-zinc-400 hover:text-black dark:hover:text-zinc-100 transition-colors duration-150">
+              {tn('analyze')}
+            </Link>
+            <Link href={`${home}#features`} className="block text-[13px] text-black/40 dark:text-zinc-400 hover:text-black dark:hover:text-zinc-100 transition-colors duration-150">
+              {t('footer_how')}
+            </Link>
+            <Link href={`${home}#ejemplo`} className="block text-[13px] text-black/40 dark:text-zinc-400 hover:text-black dark:hover:text-zinc-100 transition-colors duration-150">
+              {t('footer_examples')}
+            </Link>
+          </div>
+        </div>
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.15em] text-black/30 dark:text-zinc-600 font-medium mb-4">
+            {t('footer_legal')}
+          </p>
+          <div className="space-y-2.5">
+            <Link href={p('/privacy')} className="block text-[13px] text-black/40 dark:text-zinc-400 hover:text-black dark:hover:text-zinc-100 transition-colors duration-150">
+              {t('footer_privacy')}
+            </Link>
+            <Link href={p('/terms')} className="block text-[13px] text-black/40 dark:text-zinc-400 hover:text-black dark:hover:text-zinc-100 transition-colors duration-150">
+              {t('footer_terms')}
+            </Link>
+          </div>
+        </div>
+      </div>
+      <div className="border-t border-black/8 dark:border-zinc-800 pt-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
+        <span className="text-[12px] text-black/25 dark:text-zinc-600">{t('footer_copyright')}</span>
+        <span className="text-[12px] text-black/25 dark:text-zinc-600">{t('footer_built')}</span>
+      </div>
+    </div>
+  )
 }
 
-function ImprovementRow({ improvement }: { improvement: Improvement }) {
+type ImpactLevel = 'high' | 'medium' | 'low'
+
+function ImprovementRow({
+  improvement,
+  impactBadge,
+}: {
+  improvement: Improvement
+  impactBadge: Record<ImpactLevel, { label: string; classes: string }>
+}) {
   const impact = impactBadge[improvement.impact] ?? impactBadge.medium
 
   return (

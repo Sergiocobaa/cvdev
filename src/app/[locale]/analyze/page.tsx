@@ -3,25 +3,34 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useTranslations, useLocale } from 'next-intl'
 import ThemeToggle from '@/components/ThemeToggle'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
+
+type ErrorKey = 'pdf' | 'cv' | 'job' | 'generic' | null
 
 export default function AnalyzePage() {
   const router = useRouter()
+  const t = useTranslations('analyze')
+  const locale = useLocale()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [file, setFile] = useState<File | null>(null)
   const [jobDescription, setJobDescription] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [errorKey, setErrorKey] = useState<ErrorKey>(null)
   const [dots, setDots] = useState(1)
+
+  const home = locale === 'es' ? '/es' : '/'
+  const resultPath = locale === 'es' ? '/es/result' : '/result'
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0]
     if (selected && selected.type === 'application/pdf') {
       setFile(selected)
-      setError(null)
+      setErrorKey(null)
     } else {
-      setError('Solo se aceptan archivos PDF.')
+      setErrorKey('pdf')
     }
   }
 
@@ -33,12 +42,11 @@ export default function AnalyzePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!file) return setError('Por favor sube tu CV en PDF.')
-    if (jobDescription.trim().length < 50)
-      return setError('La oferta parece muy corta. Pega el texto completo.')
+    if (!file) return setErrorKey('cv')
+    if (jobDescription.trim().length < 50) return setErrorKey('job')
 
     setLoading(true)
-    setError(null)
+    setErrorKey(null)
 
     const interval = setInterval(() => {
       setDots((d) => (d % 3) + 1)
@@ -57,16 +65,16 @@ export default function AnalyzePage() {
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.error ?? 'Error al analizar el CV.')
+        throw new Error(data.error ?? t('error_generic'))
       }
 
       sessionStorage.setItem('cvdev_analysis', JSON.stringify({
         ...data,
         createdAt: new Date().toISOString(),
       }))
-      router.push('/result')
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Algo salió mal. Inténtalo de nuevo.')
+      router.push(resultPath)
+    } catch {
+      setErrorKey('generic')
       setLoading(false)
     } finally {
       clearInterval(interval)
@@ -81,11 +89,14 @@ export default function AnalyzePage() {
       {/* Nav */}
       <nav className="border-b border-black/8 dark:border-zinc-800 px-8 py-5">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link href="/" className="tracking-tight select-none text-[15px]">
+          <Link href={home} className="tracking-tight select-none text-[15px]">
             <span className="font-semibold text-black dark:text-zinc-100">cv</span>
             <span className="font-normal font-mono text-[#888] dark:text-zinc-500">dev</span>
           </Link>
-          <ThemeToggle />
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <ThemeToggle />
+          </div>
         </div>
       </nav>
 
@@ -94,16 +105,16 @@ export default function AnalyzePage() {
         {/* Page header */}
         <div className="mb-14">
           <p className="text-[11px] uppercase tracking-[0.18em] text-black/35 dark:text-zinc-500 mb-5 font-medium">
-            Análisis de CV
+            {t('eyebrow')}
           </p>
           <h1
             className="text-[clamp(28px,4vw,44px)] font-medium leading-[1.1] mb-4"
             style={{ letterSpacing: '-0.03em' }}
           >
-            Sube tu CV y la oferta.
+            {t('title')}
           </h1>
           <p className="text-[15px] text-black/40 dark:text-zinc-400 leading-relaxed">
-            El análisis tarda menos de 30 segundos.
+            {t('subtitle')}
           </p>
         </div>
 
@@ -115,7 +126,7 @@ export default function AnalyzePage() {
             {/* Left — CV upload */}
             <div>
               <label className="block text-[11px] uppercase tracking-[0.18em] text-black/40 dark:text-zinc-500 font-medium mb-4">
-                Tu CV en PDF
+                {t('cv_label')}
               </label>
 
               <div
@@ -151,35 +162,35 @@ export default function AnalyzePage() {
                       onClick={removeFile}
                       disabled={loading}
                       className="ml-4 flex-shrink-0 text-black/30 dark:text-zinc-500 hover:text-black/70 dark:hover:text-zinc-300 text-lg leading-none transition-colors disabled:pointer-events-none"
-                      aria-label="Eliminar archivo"
+                      aria-label="Remove file"
                     >
                       ×
                     </button>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center px-6 py-10 text-center">
-                    <p className="text-[13px] text-black/45 dark:text-zinc-400 mb-1">Arrastra tu PDF aquí</p>
-                    <p className="text-[11px] text-black/25 dark:text-zinc-600">o haz clic para seleccionar</p>
+                    <p className="text-[13px] text-black/45 dark:text-zinc-400 mb-1">{t('cv_drag')}</p>
+                    <p className="text-[11px] text-black/25 dark:text-zinc-600">{t('cv_click')}</p>
                   </div>
                 )}
               </div>
 
-              {error && error.toLowerCase().includes('pdf') && (
-                <p className="text-[12px] text-red-600 dark:text-red-400 mt-2">{error}</p>
+              {(errorKey === 'pdf' || errorKey === 'cv') && (
+                <p className="text-[12px] text-red-600 dark:text-red-400 mt-2">{t(`error_${errorKey}`)}</p>
               )}
             </div>
 
             {/* Right — Job description */}
             <div>
               <label className="block text-[11px] uppercase tracking-[0.18em] text-black/40 dark:text-zinc-500 font-medium mb-4">
-                Oferta de trabajo
+                {t('job_label')}
               </label>
 
               <textarea
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
                 disabled={loading}
-                placeholder="Pega aquí el texto completo de la oferta..."
+                placeholder={t('job_placeholder')}
                 className={[
                   'w-full text-[13px] text-black dark:text-zinc-100 placeholder-black/20 dark:placeholder-zinc-600',
                   'border border-black/12 dark:border-zinc-700 bg-white dark:bg-zinc-900',
@@ -193,21 +204,21 @@ export default function AnalyzePage() {
 
               <div className="flex items-center justify-between mt-2">
                 <span className="text-[11px] text-black/25 dark:text-zinc-600">
-                  Incluye título, requisitos y descripción.
+                  {t('job_helper')}
                 </span>
                 <span className="text-[11px] text-black/25 dark:text-zinc-600">
-                  {jobDescription.length} car.
+                  {jobDescription.length} {t('char_unit')}
                 </span>
               </div>
 
-              {error && error.toLowerCase().includes('oferta') && (
-                <p className="text-[12px] text-red-600 dark:text-red-400 mt-2">{error}</p>
+              {errorKey === 'job' && (
+                <p className="text-[12px] text-red-600 dark:text-red-400 mt-2">{t('error_job')}</p>
               )}
             </div>
           </div>
 
-          {error && !error.toLowerCase().includes('pdf') && !error.toLowerCase().includes('oferta') && (
-            <p className="text-[12px] text-red-600 dark:text-red-400 mb-6">{error}</p>
+          {errorKey === 'generic' && (
+            <p className="text-[12px] text-red-600 dark:text-red-400 mb-6">{t('error_generic')}</p>
           )}
 
           {/* Submit */}
@@ -223,8 +234,8 @@ export default function AnalyzePage() {
               ].join(' ')}
             >
               {loading
-                ? `Analizando${'.'.repeat(dots)}`
-                : 'Analizar CV →'}
+                ? `${t('loading_text')}${'.'.repeat(dots)}`
+                : t('submit')}
             </button>
 
             {loading && (
@@ -234,9 +245,7 @@ export default function AnalyzePage() {
             )}
 
             <p className="text-[11px] text-black/25 dark:text-zinc-600 text-center mt-4">
-              {loading
-                ? 'No cierres esta página. Puede tardar hasta 30 segundos.'
-                : 'Sin registro · Tus datos no se almacenan permanentemente'}
+              {loading ? t('loading_disclaimer') : t('idle_disclaimer')}
             </p>
           </div>
 
